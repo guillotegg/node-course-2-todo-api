@@ -7,7 +7,7 @@ const {User} = require("./model/user");
 const {ObjectID} = require('mongodb');
 
 var app = express();
-const port = proces.env.port || 3000;
+const port = process.env.port || 3000;
 
 app.use(bodyParser.json());
 
@@ -63,7 +63,7 @@ app.delete('/todos/:id', (req, res) => {
            res.status(400).send(e);
         });
     } else {
-        res.status(404).send();
+        res.status(400).send();
     }
 });
 
