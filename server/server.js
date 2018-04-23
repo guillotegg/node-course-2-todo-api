@@ -6,6 +6,7 @@ const {mongoose} = require('./db/mongoose')
 const {Todo} = require('./model/todo');
 const {User} = require("./model/user");
 const {ObjectID} = require('mongodb');
+const {authenticate} = require("./middleware/authenticate");
 
 var app = express();
 const port = process.env.port || 3000;
@@ -96,20 +97,25 @@ app.patch('/todos/:id', (req, res) => {
     }
 });
 
+app.post('/users/', (req, res) => {
+    var body = _.pick(req.body, ['name', 'email', 'password'] )
+    var newUser = new User(body);
+
+    newUser.save().then(() => {
+        return newUser.generateAuthToken();
+    }).then((token) => {
+        res.header('x-auth', token).send(newUser);        
+    }).catch((e) => {
+        res.status(400).send(e);
+    });
+});
+
+app.get('/users/me', authenticate, (req, res) => {
+    res.send(req.user);
+}); 
+
 app.listen(port, () => {
     console.log(`Starting on port ${port}`);
 });
 
 module.exports = {app};
-
-/*var newUser = new User({
-    name: 'Guillermo',
-    email: 'guillote_gg@hotmail.com'
-});
-
-newUser.save().then((doc) => {
-    console.log('Saved User', doc);
-}, (e)=> {
-    console.log('Unable to save User', e)
-});*/
-
