@@ -98,14 +98,26 @@ app.patch('/todos/:id', (req, res) => {
     }
 });
 
-app.post('/users/', (req, res) => {
+app.post('/users/login', (req, res) => {
+    var body = _.pick(req.body, ['name', 'email', 'password'] )
+
+    User.findByCredentials(body.email, body.password).then((user) => {
+        user.generateAuthToken().then((token) => {
+            res.header('x-auth', token).send(user);
+        })
+    }).catch((e) => {
+        res.status(400).send();
+    });
+});
+
+app.post('/users', (req, res) => {
     var body = _.pick(req.body, ['name', 'email', 'password'] )
     var newUser = new User(body);
 
     newUser.save().then(() => {
         return newUser.generateAuthToken();
     }).then((token) => {
-        res.header('x-auth', token).send(newUser);        
+        res.header('x-auth', token).send(newUser);
     }).catch((e) => {
         res.status(400).send(e);
     });
