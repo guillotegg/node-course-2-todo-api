@@ -23,6 +23,7 @@ const users = [{
     _id: userOneId,
     name: 'user one',
     email: 'user1@example.com',
+    password: 'pwd123!',
     tokens: [{
         access: 'auth',
         token: jwt.sign({_id: userOneId, access: 'auth'}, 'abc123').toString()
@@ -30,7 +31,8 @@ const users = [{
     {
         _id: userTwoId,
         name: 'user two',
-        email: 'user2@example.com'
+        email: 'user2@example.com',
+        password: 'abc123!',
     }];
 
 const populateTodos = (done) => {
@@ -41,7 +43,10 @@ const populateTodos = (done) => {
 
 const populateUsers = (done) => {
     User.remove({}).then(() => {
-        User.insertMany(users);
+        var userOne = new User(users[0]).save();
+        var userTwo = new User(users[1]).save();
+        
+        return Promise.all([userOne, userTwo]);
     }).then(() => done());
 }
 
